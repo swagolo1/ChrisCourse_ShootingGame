@@ -90,9 +90,19 @@ const enemies = []
 function spawnEnemies(){
     setInterval(()=> {
         // console.log('go');
-        const x = Math.random() * canvas.width
-        const y = Math.random() * canvas.height
-        const radius = 30
+        const radius = Math.random() * (30 - 10) + 10
+        // const x = Math.random() * canvas.width
+        // const y = Math.random() * canvas.height
+        let x
+        let y
+        if (Math.random() < 0.5 ){
+            x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius
+            y = Math.random() * canvas.height
+            // y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius
+        }else {
+            x = Math.random() * canvas.width
+            y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius
+        }
         const color = 'green'
         // const velocity = { x: 1, y: 1}
         const angle = Math.atan2( canvas.height / 2 - y, canvas.width / 2 - x )
@@ -101,26 +111,72 @@ function spawnEnemies(){
         y: Math.sin(angle)
     }
         enemies.push(new Enemy(x, y, radius, color, velocity))
-        console.log(enemies)
+        // console.log(enemies)
     }, 1000)
 }
 
+let animationId
+
 function animate(){
-    requestAnimationFrame(animate)
-    c.clearRect(0, 0, canvas.width, canvas.height)
+    animationId = requestAnimationFrame(animate)
+    c.fillStyle = 'rgba(0, 0, 0, 0.1)'
+    c.fillRect(0, 0, canvas.width, canvas.height)
     player.draw() 
-    projectiles.forEach((projectile)=> {projectile.update()})
+    projectiles.forEach((projectile, index)=> {
+        
+        projectile.update()
+        //remove from edges of screen
+        if( projectile.x + projectile.radius < 0 ||
+            projectile.x - projectile.radius > canvas.width ||
+            projectile.y + projectile.radius < 0 ||
+            projectile.y - projectile.radius > canvas.height
+            ){
+            setTimeout(() =>{
+
+                projectiles.splice(index, 1)
+
+            }, 0)
+        }
+    })
     // console.log('go')
     // projectile.draw()
     // projectile.update()
-    enemies.forEach(enemy => {
+    enemies.forEach((enemy, index) => {
         enemy.update()
+
+        const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y)
+        
+        //end game
+        if (dist - enemy.radius - player.radius < 1 ) {
+            // console.log('eng game')
+            cancelAnimationFrame(animationId)
+        }
+
+
+        projectiles.forEach((projectile, projectileIndex) => {
+            const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y)
+            // console.log(dist);
+            // console.log(dist - enemy.radius - projectile.radius)
+            //object touche
+            if (dist - enemy.radius - projectile.radius < 1 ) {
+                // console.log('remove from screen');
+                setTimeout(() =>{
+                    enemies.splice(index, 1)
+                    projectiles.splice(projectileIndex, 1)
+
+                }, 0)
+                
+
+            }
+        })
     })
 }
 
 addEventListener('click', (event)=> {
     // console.log(event.clientX)
     //console.log(angle)
+    console.log(projectiles)
+    
     const angle = Math.atan2(event.clientY - canvas.height / 2, event.clientX - canvas.width / 2)
     const velocity = {
         x: Math.cos(angle),
@@ -133,4 +189,4 @@ addEventListener('click', (event)=> {
 })
 
 animate()
-// spawnEnemies()
+spawnEnemies()
