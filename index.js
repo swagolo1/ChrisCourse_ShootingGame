@@ -13,7 +13,7 @@ const bigScoreEl = document.querySelector('#bigScoreEl')
 
 
 
-console.log(scoreEl)
+// console.log(scoreEl)
 
 // console.log(c);
 // console.log(canvas);
@@ -164,7 +164,7 @@ function spawnEnemies(){
         y: Math.sin(angle)
     }
         enemies.push(new Enemy(x, y, radius, color, velocity))
-        console.log(enemies)
+        // console.log(enemies)
     }, 1000)
 }
 
@@ -268,7 +268,8 @@ function animate(){
 addEventListener('click', (event)=> {
     // console.log(event.clientX)
     //console.log(angle)
-    console.log(projectiles)
+    
+    // console.log(projectiles)
     
     const angle = Math.atan2(event.clientY - canvas.height / 2, event.clientX - canvas.width / 2)
     const velocity = {
